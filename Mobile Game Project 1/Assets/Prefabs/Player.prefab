@@ -49,6 +49,8 @@ MonoBehaviour:
     type: 3}
   backgroundPrefab: {fileID: 7305107546251051632, guid: 68e2807088cbf5a459608fbe8bf2d513,
     type: 3}
+  starPointPrefab: {fileID: 930161596087129636, guid: ceb27d7a1b51e734a84f537d3abc4dd6,
+    type: 3}
   thePlayer: {fileID: 4887577973859223596}
 --- !u!1 &4887577973859223595
 GameObject:
@@ -146,9 +148,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 0}
   rb: {fileID: 4887577973859223598}
+  rend: {fileID: 0}
+  scoreText: {fileID: 0}
+  deathScreeen: {fileID: 0}
+  white: {fileID: 2100000, guid: fa048d58fd70a76469153a13837224cf, type: 2}
+  red: {fileID: 2100000, guid: b2b402a42a8d56c48ab3e436f9286bff, type: 2}
   dead: 0
   isGoodToJump: 0
   beenOnGroundFor: 0
+  yPosToDie: -5
 --- !u!1 &4887577975676262270
 GameObject:
   m_ObjectHideFlags: 0

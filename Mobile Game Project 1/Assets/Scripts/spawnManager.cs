@@ -7,6 +7,7 @@ public class spawnManager : MonoBehaviour
     public GameObject rockPlatPrefab;
     public GameObject unstableRockPlatPrefab;
     public GameObject backgroundPrefab;
+    public GameObject starPointPrefab;
 
     public Transform thePlayer;
     private float nextSpawningTrigger = 0;
@@ -36,8 +37,14 @@ public class spawnManager : MonoBehaviour
                 Destroy(plat);
             }
         }
-        //if statement for if the player falls
-
+        GameObject[] allPoint = GameObject.FindGameObjectsWithTag("StarPoint");
+        foreach (GameObject star in allPoint)
+        {
+            if (star.transform.position.y < transform.position.y - 25)
+            {
+                Destroy(star);
+            }
+        }
     }
 
     void makeNewArea()
@@ -54,16 +61,20 @@ public class spawnManager : MonoBehaviour
                 {
                     makeAPlatform(i, 0);
                     previousPlatX = 0;
+                    maybeMakeAStarPoint(i, 0);
                 }
                 else if (rand == 1)
                 {
                     makeAPlatform(i, 2.1f);
                     previousPlatX = 2.1f;
+                    maybeMakeAStarPoint(i, 2.1f);
+
                 }
                 else if(rand == 2)
                 {
                     makeAPlatform(i, -2.1f);
                     previousPlatX = -2.1f;
+                    maybeMakeAStarPoint(i, -2.1f);
                 } else
                 {
                     makeAPlatform(i, -2.1f);
@@ -72,9 +83,11 @@ public class spawnManager : MonoBehaviour
                     if(rand == 0)
                     {
                         previousPlatX = -2.1f;
+                        maybeMakeAStarPoint(i, 2.1f);
                     } else
                     {
                         previousPlatX = 2.1f;
+                        maybeMakeAStarPoint(i, -2.1f);
                     }
                 }
             } else if(previousPlatX == -2.1f)
@@ -84,10 +97,12 @@ public class spawnManager : MonoBehaviour
                 {
                     makeAPlatform(i, -2.1f);
                     previousPlatX = -2.1f;
+                    maybeMakeAStarPoint(i, -2.1f);
                 } else
                 {
                     makeAPlatform(i, 0);
                     previousPlatX = 0;
+                    maybeMakeAStarPoint(i, 0);
                 }
             } else
             {
@@ -97,11 +112,13 @@ public class spawnManager : MonoBehaviour
                 {
                     makeAPlatform(i, 2.1f);
                     previousPlatX = 2.1f;
+                    maybeMakeAStarPoint(i, 2.1f);
                 }
                 else
                 {
                     makeAPlatform(i, 0);
                     previousPlatX = 0;
+                    maybeMakeAStarPoint(i, 0);
                 }
             }
         }
@@ -122,6 +139,17 @@ public class spawnManager : MonoBehaviour
         Quaternion spawnRot = new Quaternion(0, 0, 0, 0);
         Instantiate(unstableRockPlatPrefab, spawnPos, spawnRot);
 
+    }
+
+    void maybeMakeAStarPoint(float posY, float posX)
+    {
+        float rand = Random.Range(0, 20);
+        if (rand > 18)
+        {
+            Vector3 spawnPos = new Vector3(unstableRockPlatPrefab.transform.position.x + posX, unstableRockPlatPrefab.transform.position.y + nextSpawningTrigger + posY + 1.5f, unstableRockPlatPrefab.transform.position.z);
+            Quaternion spawnRot = new Quaternion(0, 0, 0, 0);
+            Instantiate(starPointPrefab, spawnPos, spawnRot);
+        }
     }
 
 }

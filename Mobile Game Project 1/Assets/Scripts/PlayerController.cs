@@ -1,18 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
     public GameObject mainCamera;
     private bool camReadyToMove;
     public Rigidbody2D rb;
+    public Renderer rend;
     private float score = 0f;
     private float countdownToNextPoint = 6f;
+    public GameObject scoreText;
+    public GameObject deathScreeen;
+
+    public Material white;
+    public Material red;
+
 
     [SerializeField] bool dead;
     [SerializeField] bool isGoodToJump;
     [SerializeField] float beenOnGroundFor = 0f;
+    [SerializeField] float yPosToDie = -5;
 
 
 
@@ -35,7 +45,7 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        rend = GameObject.Find("Player_Temp_Display").GetComponent<Renderer>();
     }
 
     void Update()
@@ -43,6 +53,23 @@ public class PlayerController : MonoBehaviour
         if (!dead)
         {
 
+            //move camera and death Y Position. if below death Y position you die
+            if(rb.velocity.y > 0)
+            {
+                if(transform.position.y + 3 >= mainCamera.gameObject.transform.position.y)
+                {
+                    mainCamera.gameObject.transform.position = new Vector3(mainCamera.gameObject.transform.position.x, transform.position.y + 3, mainCamera.gameObject.transform.position.z);
+                    yPosToDie = transform.position.y - 5;
+                }
+            } else
+            {
+                if(transform.position.y <= yPosToDie)
+                {
+                    dead = true;
+                    deathScreeen.gameObject.SetActive(true);
+                    Destroy(gameObject);
+                }
+            }
 
 
 
@@ -60,7 +87,6 @@ public class PlayerController : MonoBehaviour
             if (isGoodToJump)
             {
                 //temp PC system
-                /*
                 if (Input.GetKey(KeyCode.LeftArrow))
                 {
                     tiltTrajectory = Trajectory.LeftUp;
@@ -104,7 +130,6 @@ public class PlayerController : MonoBehaviour
 
                 }
                 //temp PC input ENDS
-                */
 
                 //touchscreen workable
                 if (Input.acceleration.x > 0.2f && inLane != Lane.LeftLane)
@@ -132,7 +157,7 @@ public class PlayerController : MonoBehaviour
                     if (tiltTrajectory.Equals(Trajectory.LeftUp))
                     {
                         //Launch up and left
-                        jump(1.5f, 15f);
+                        jump(2.9f, 24f);
                         if(inLane == Lane.RightLane)
                         {
                             inLane = Lane.MiddleLane;
@@ -144,7 +169,7 @@ public class PlayerController : MonoBehaviour
                     else if (tiltTrajectory.Equals(Trajectory.RightUp))
                     {
                         //launch up and right
-                        jump(-1.5f, 15f);
+                        jump(-2.9f, 24f);
                         if(inLane == Lane.LeftLane)
                         {
                             inLane = Lane.MiddleLane;
@@ -156,7 +181,7 @@ public class PlayerController : MonoBehaviour
                     else
                     {
                         //launch up
-                        jump(0f, 10f);
+                        jump(0f, 22f);
 
                     }
                 }
@@ -185,11 +210,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void updateScoreDisplay(float addNumber)
+    public void updateScoreDisplay(float addNumber)
     {
         score += addNumber;
         Debug.Log("score is " + score);
-        //display the new score
+        scoreText.GetComponent<TMP_Text>().text = score.ToString();
     }
 
     private void OnCollisionStay2D(Collision2D collision)
@@ -197,25 +222,19 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.CompareTag("platform"))
         {
             beenOnGroundFor += Time.deltaTime;
-            if(beenOnGroundFor >= 0.2f)
+            if(beenOnGroundFor >= 0.1f)
             {
                 isGoodToJump = true;
+                rend.material = white;
                 //show trajectory now
-                if (camReadyToMove)
-                {
-                    //switch the camera from another way
-                    camReadyToMove = false;
-                    mainCamera.gameObject.transform.position = new Vector3(mainCamera.gameObject.transform.position.x, transform.position.y + 3, mainCamera.gameObject.transform.position.z);
-                }
                 if (collision.gameObject.GetComponent<platformController>().canCrumble && !collision.gameObject.GetComponent<platformController>().isCrumbling)
                 {
                     collision.gameObject.GetComponent<platformController>().startCrumbling(5f);
                 }
             }
-        } else if (collision.gameObject.CompareTag("point"))
+        } else if (collision.gameObject.CompareTag("StarPoint"))
         {
-            //access the point thing, get it to do an effect and get destroyed
-            updateScoreDisplay(5f);
+            collision.gameObject.GetComponent<starPointSystem>().destroyMe();
         }
     }
 
@@ -225,32 +244,18 @@ public class PlayerController : MonoBehaviour
 
     void jump(float modX, float modY)
     {
-        Debug.Log("JUMP!");
         isGoodToJump = false;
+        rend.material = red;
         beenOnGroundFor = 0f;
-        camReadyToMove = true;
+        if (tiltTrajectory.Equals(Trajectory.StraightUp))
+        {
+            beenOnGroundFor = -0.2f;
+        }
+        //camReadyToMove = true;
         //temp disable Trajectory showing
         Vector2 launchVector = new Vector2(modX, modY);
-        //rb.AddForce(launchVector, ForceMode2D.Impulse);   //fix this when i can fix the gravity problem, in the meantime this next part
-
-        if(modX > 0)
-        {
-            transform.position = new Vector3(transform.position.x + 2, transform.position.y + 5, transform.position.z);
-
-        } else if(modX < 0)
-        {
-            transform.position = new Vector3(transform.position.x - 2, transform.position.y + 5, transform.position.z);
-
-        }
-        else
-        {
-            transform.position = new Vector3(transform.position.x, transform.position.y + 5, transform.position.z);
-
-        }
-
+        rb.AddForce(launchVector, ForceMode2D.Impulse); 
     }
-
-
 
 
 
